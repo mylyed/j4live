@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+    <title>Black8 test</title>
+    <style>
+        .mainContainer {
+            display: block;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @media screen and (min-width: 1152px) {
+            .mainContainer {
+                display: block;
+                width: 1152px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
+        .video-container {
+            position: relative;
+            margin-top: 8px;
+        }
+
+        .video-container:before {
+            display: block;
+            content: "";
+            width: 100%;
+            padding-bottom: 56.25%;
+        }
+
+        .video-container > div {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+        }
+
+        .urlInput {
+            display: block;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .centeredVideo {
+            display: block;
+            width: 100%;
+            height: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: auto;
+        }
+
+        .controls {
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 8px;
+            margin-bottom: 10px;
+        }
+
+        .logcatBox {
+            border-color: #CCCCCC;
+            font-size: 11px;
+            font-family: Menlo, Consolas, monospace;
+            display: block;
+            width: 100%;
+            text-align: left;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .url-input, .options {
+            font-size: 13px;
+        }
+
+        .url-input {
+            display: flex;
+        }
+
+        .url-input label {
+            flex: initial;
+        }
+
+        .url-input input {
+            flex: auto;
+            margin-left: 8px;
+        }
+
+        .url-input button {
+            flex: initial;
+            margin-left: 8px;
+        }
+
+        .options {
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+    <script src="https://cdn.bootcdn.net/ajax/libs/flv.js/1.5.0/flv.min.js"></script>
+</head>
+
+<body>
+<div class="mainContainer">
+    <div>
+        <div id="streamURL">
+            <div class="url-input">
+                <label for="sURL">视频流地址:</label>
+                <input id="sURL" type="text" value="http://127.0.0.1:8080/live/asd"/>
+            </div>
+        </div>
+    </div>
+    <div class="video-container">
+        <div>
+            <video id="videoElement" class="centeredVideo" controls autoplay muted>
+                Your browser is too old which doesn't support HTML5 video.
+            </video>
+        </div>
+    </div>
+    <div class="controls">
+        <button onclick="flv_load()">加载</button>
+        <button onclick="flv_destroy()">停止</button>
+    </div>
+    <!--日志-->
+    <textarea name="logcatbox" class="logcatBox" rows="10" readonly></textarea>
+</div>
+
+<script>
+    var streamURL;
+    var player;
+    var logcatbox = document.getElementsByName('logcatbox')[0];
+
+    //加载
+    function flv_load() {
+        console.log('isSupported: ' + flvjs.isSupported());
+        if (flvjs.isSupported()) {
+            var videoElement = document.getElementById('videoElement');
+            var flvPlayer = flvjs.createPlayer({
+                type: 'flv',
+                isLive: true,
+                url: streamURL
+            });
+            flvPlayer.attachMediaElement(videoElement);
+            flvPlayer.load();
+            flvPlayer.play();
+        }
+    }
+
+    //销毁
+    function flv_destroy() {
+        player.pause();
+        player.unload();
+        player.detachMediaElement();
+        player.destroy();
+        player = null;
+    }
+
+    //显示版本
+    function showVersion() {
+        var version = flvjs.version;
+        var logStr = 'flvjs version ' + version
+        logcatbox.value = logcatbox.value + logStr + '\n';
+    }
+
+    //
+    flvjs.LoggingControl.addLogListener(function (type, str) {
+        logcatbox.value = logcatbox.value + str + '\n';
+        logcatbox.scrollTop = logcatbox.scrollHeight;
+    });
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        streamURL = document.getElementById('sURL').value;
+        console.log(streamURL);
+        showVersion();
+        flv_load();
+        flvjs.LoggingControl.enableAll = false;
+        console.log(flvjs.LoggingControl.getConfig())
+    });
+
+
+</script>
+
+</body>
+
+</html>
